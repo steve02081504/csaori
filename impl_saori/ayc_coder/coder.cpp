@@ -1,26 +1,53 @@
 #include "csaori.h"
 #undef max//fucking windows
-struct Aya_Coder_t{
+struct Aya_Coder_t{//文
 	struct decoder_t{
-		void write_header(FILE*to){}
+		static void write_header(FILE*to){}
 		static int cipher(const int c)
 		{
 			return (((c & 0x7) << 5) | ((c & 0xf8) >> 3)) ^ 0x5a;
 		}
-		void write_ender(FILE*to){}
+		static void write_ender(FILE*to){}
 	};
 	struct encoder_t{
-		void write_header(FILE*to){}
+		static void write_header(FILE*to){}
 		static int cipher(const int c)
 		{
 			return (((c ^ 0x5a) << 3) & 0xF8) | (((c ^ 0x5a) >> 5) & 0x7);
 		}
-		void write_ender(FILE*to){}
+		static void write_ender(FILE*to){}
 	};
 	static constexpr auto codedFileSuffix=L"ayc";
 	static constexpr auto NoncodedFileSuffix=L"dic";
 };
-
+struct Misaka_Coder_t{//美版
+	struct decoder_t{
+		static void write_header(FILE*to){}
+		static int cipher(const int c)
+		{
+			return 255-c;
+		}
+		static void write_ender(FILE*to){}
+	};
+	struct encoder_t{
+		static int cipher(const int c)
+		{
+			return 255-c;
+		}
+		static void write_header(FILE*to){
+			auto head="// encrypted\r\n";
+			for(head;char c)
+				fputc(cipher(c),to);
+		}
+		static void write_ender(FILE*to){
+			auto end="\r\n";
+			for(end;char c)
+				fputc(cipher(c),to);
+		}
+	};
+	static constexpr auto codedFileSuffix=L"__1";
+	static constexpr auto NoncodedFileSuffix=L"txt";
+};
 
 auto ChangeSuffix(string_t name,string_t newSuffix){
 	auto point = name.rfind(L".",std::max(name.rfind(L"\\"),name.rfind(L"/")));
