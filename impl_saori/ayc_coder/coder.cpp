@@ -1,11 +1,12 @@
 #include "csaori.h"
+
 #undef max//fucking windows
 struct Aya_Coder_t{//文
 	struct decoder_t{
 		static void write_header(FILE*to){}
 		static int cipher(const int c)
 		{
-			return (((c & 0x7) << 5) | ((c & 0xf8) >> 3)) ^ 0x5a;
+			return(((c & 0x7)<< 5)|((c & 0xf8)>> 3))^ 0x5a;
 		}
 		static void write_ender(FILE*to){}
 	};
@@ -13,7 +14,7 @@ struct Aya_Coder_t{//文
 		static void write_header(FILE*to){}
 		static int cipher(const int c)
 		{
-			return (((c ^ 0x5a) << 3) & 0xF8) | (((c ^ 0x5a) >> 5) & 0x7);
+			return(((c ^ 0x5a)<< 3)& 0xF8)|(((c ^ 0x5a)>> 5)& 0x7);
 		}
 		static void write_ender(FILE*to){}
 	};
@@ -48,12 +49,81 @@ struct Misaka_Coder_t{//美版
 	static constexpr auto codedFileSuffix=L"__1";
 	static constexpr auto NoncodedFileSuffix=L"txt";
 };
+struct Kawari_Coder_t{//華和梨
+	using std::string;
+
+	struct decoder_t{
+		static string EncryptLine(const string& str)
+		{
+			string id=encodedstr.substr(0,9);
+			if id !="!KAWA0000"
+				return
+			string aret;
+			for(str;auto c){
+				aret+=c^0xcc;
+			}
+			return("!KAWA0000"+EncodeBase64(aret));
+		}
+	};
+	struct encoder_t{
+		static string DecryptLine(const string& str)
+		{
+			string str=DecodeBase64(str.substr(9));
+			string aret;
+			for(unsigned int i=0;i<str.size();i++){
+				aret+=str[i]^0xcc;
+			}
+			return(aret);
+		}
+	};
+	static constexpr auto codedFileSuffix=L"kiw";
+	static constexpr auto NoncodedFileSuffix=L"kis";
+};
+struct Satoriya_Coder_t{//里々
+	using std::string;
+
+	struct base{
+		static string encode(const string& s){
+			const char*	p=s.c_str();
+			int	len=s.size();
+			string ret;
+			for(int n=0;n<len/2;++n){
+				ret+=p[n];
+				ret+=p[len-n-1];
+			}
+			if(len&1)ret+=p[len/2];
+			return ret;
+		}
+		static string decode(const string& s){
+			const char*	p=s.c_str();
+			int	len=s.size();
+			string ret;
+			for(int n=0;n<len;n+=2)ret+=p[n];
+			for(int n=len-((len&1)?2:1);n>=0;n-=2)ret+=p[n];
+			return	ret;
+		}
+	};
+	struct decoder_t{
+		static string EncryptLine(const string& str)
+		{
+			return base::encode(base::encode(str));
+		}
+	};
+	struct encoder_t{
+		static string DecryptLine(const string& str)
+		{
+			return base::decode(base::decode(str));
+		}
+	};
+	static constexpr auto codedFileSuffix=L"sat";
+	static constexpr auto NoncodedFileSuffix=L"txt";
+};
 
 auto ChangeSuffix(string_t name,string_t newSuffix){
-	auto point = name.rfind(L".",std::max(name.rfind(L"\\"),name.rfind(L"/")));
-	if (point != string_t::npos)
+	auto point=name.rfind(L".",std::max(name.rfind(L"\\"),name.rfind(L"/")));
+	if(point!=string_t::npos)
 		name.erase(point);
-	return name + L"." + newSuffix;
+	return name+L"."+newSuffix;
 }
 template<class Coder_t>
 struct Runcoder_t{
