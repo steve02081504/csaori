@@ -55,10 +55,11 @@ struct Misaka_Coder_t{//美版
 	static constexpr auto coder_mode=char_mode;
 };
 using namespace std;
+#include "base64.h"
 struct Kawari_Coder_t{//華和梨
 	//using std::string;
 	struct decoder_t{
-		static string docryptLine(const string& str)
+		static string docryptLine(string str)
 		{
 			string id=str.substr(0,9);
 			if(id !="!KAWA0000")
@@ -74,7 +75,7 @@ struct Kawari_Coder_t{//華和梨
 		static string docryptLine(const string& str)
 		{
 			string id=str.substr(0,9);
-			if(id !="!KAWA0000")
+			if(id =="!KAWA0000")
 				return str;
 			string aret;
 			for(auto c:str)
@@ -93,7 +94,7 @@ struct Satoriya_Coder_t{//里々
 			const char*	p=s.c_str();
 			auto len=s.size();
 			string aret;
-			for(int n=0;n<len/2;++n){
+			for(size_t n=0;n<len/2;++n){
 				aret+=p[n];
 				aret+=p[len-n-1];
 			}
@@ -104,8 +105,8 @@ struct Satoriya_Coder_t{//里々
 			const char*	p=s.c_str();
 			auto len=s.size();
 			string aret;
-			for(auto n=0;n<len;n+=2)aret+=p[n];
-			for(auto n=len-((len&1)?2:1);n>=0;n-=2)aret+=p[n];
+			for(size_t n=0;n<len;n+=2)aret+=p[n];
+			for(long long n=len-((len&1)?2:1);n>=0;n-=2)aret+=p[n];
 			return	aret;
 		}
 	};
@@ -132,12 +133,12 @@ auto ChangeSuffix(string_t name,string_t newSuffix){
 		name.erase(point);
 	return name+L"."+newSuffix;
 }
-string fgetstring(FILE*from){
+bool fgetstring(string&aret,FILE*from){
 	int c;
-	string aret;
+	aret="";
 	while((c=fgetc(from))!=EOF && c!='\n')
 		aret+=char(c);
-	return aret;
+	return c!=EOF;
 }
 void fputs(const string& str,FILE*to){
 	string aret;
@@ -149,24 +150,27 @@ void fputs(const string& str,FILE*to){
 template<class Coder_t>
 struct Runcoder_t{
 	template<class do_coder_t>
-	void runcode(FILE*from,FILE*to){
+	static void runcode(FILE*from,FILE*to){
 		if constexpr(Coder_t::coder_mode==char_mode){
-			do_coder_t::write_header();
+			do_coder_t::write_header(to);
 			int c;
 			while((c=fgetc(from))!=EOF){
 				fputc(do_coder_t::cipher(c),to);
 			}
-			do_coder_t::write_ender();
+			do_coder_t::write_ender(to);
 		}
 		else{
-			while(string t=fgetstring(from)){
+			string t;
+			while(fgetstring(t,from)){
 				fputs(do_coder_t::docryptLine(t),to);
 			}
 		}
 	}
 	template<class do_coder_t>
-	bool RuncodeFor(string_t file,string_t to_file){
-		auto fp=_wfopen(file.c_str(),Coder_t::coder_mode==char_mode?L"rb":"r");
+	static bool RuncodeFor(string_t file,string_t to_file){
+		if(file == to_file)
+			to_file += L".new";
+		auto fp=_wfopen(file.c_str(),Coder_t::coder_mode==char_mode?L"rb":L"r");
 		if(!fp)return 0;
 		auto fp2=_wfopen(to_file.c_str(),L"wb");
 		if(!fp2){
@@ -178,10 +182,10 @@ struct Runcoder_t{
 		fclose(fp2);
 		return 1;
 	}
-	bool EncodeDic(string_t file){
+	static bool EncodeDic(string_t file){
 		return RuncodeFor<Coder_t::encoder_t>(file,ChangeSuffix(file,Coder_t::codedFileSuffix));
 	}
-	bool DecodeDic(string_t file){
+	static bool DecodeDic(string_t file){
 		return RuncodeFor<Coder_t::decoder_t>(file,ChangeSuffix(file,Coder_t::NoncodedFileSuffix));
 	}
 };

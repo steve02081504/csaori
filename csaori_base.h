@@ -53,7 +53,7 @@ public:
 	CSAORIInput(const CSAORIBase &b) : base(b) {
 	}
 	
-	unsigned int codepage;
+	unsigned int codepage=0;
 	string_t cmd;
 	string_t id;
 	vector_str args;
@@ -71,7 +71,7 @@ public:
 	CSAORIOutput(const CSAORIBase &b) : base(b) {
 	}
 
-	unsigned int codepage;
+	unsigned int codepage=0;
 	SAORIRESULT result_code;
 	string_t result;
 	vector_str values;
