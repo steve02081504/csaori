@@ -1,8 +1,8 @@
-#include "csaori.h"
+﻿#include "csaori.h"
 
 #undef max//fucking windows
 
-inline enum coder_mode{line_mode,char_mode};
+enum coder_mode{line_mode,char_mode};
 
 struct Aya_Coder_t{//文
 	struct decoder_t{
@@ -40,13 +40,13 @@ struct Misaka_Coder_t{//美版
 			return 255-c;
 		}
 		static void write_header(FILE*to){
-			auto head="// encrypted\r\n";
-			for(head;char c)
+			std::string_view head="// encrypted\r\n";
+			for(char c:head)
 				fputc(cipher(c),to);
 		}
 		static void write_ender(FILE*to){
-			auto end="\r\n";
-			for(end;char c)
+			std::string_view end="\r\n";
+			for(char c:end)
 				fputc(cipher(c),to);
 		}
 	};
@@ -54,30 +54,31 @@ struct Misaka_Coder_t{//美版
 	static constexpr auto NoncodedFileSuffix=L"txt";
 	static constexpr auto coder_mode=char_mode;
 };
+using namespace std;
 struct Kawari_Coder_t{//華和梨
-	using std::string;
-
+	//using std::string;
 	struct decoder_t{
 		static string docryptLine(const string& str)
 		{
-			string str=DecodeBase64(str.substr(9));
+			string id=str.substr(0,9);
+			if(id !="!KAWA0000")
+				return str;
+			str=DecodeBase64(str.substr(9));
 			string aret;
-			for(unsigned int i=0;i<str.size();i++){
-				aret+=str[i]^0xcc;
-			}
+			for(auto c:str)
+				aret+=c^0xcc;
 			return(aret);
 		}
 	};
 	struct encoder_t{
 		static string docryptLine(const string& str)
 		{
-			string id=encodedstr.substr(0,9);
-			if id !="!KAWA0000"
-				return
+			string id=str.substr(0,9);
+			if(id !="!KAWA0000")
+				return str;
 			string aret;
-			for(str;auto c){
+			for(auto c:str)
 				aret+=c^0xcc;
-			}
 			return("!KAWA0000"+EncodeBase64(aret));
 		}
 	};
@@ -86,12 +87,11 @@ struct Kawari_Coder_t{//華和梨
 	static constexpr auto coder_mode=line_mode;
 };
 struct Satoriya_Coder_t{//里々
-	using std::string;
-
+	//using std::string;
 	struct base{
 		static string encode(const string& s){
 			const char*	p=s.c_str();
-			int	len=s.size();
+			auto len=s.size();
 			string aret;
 			for(int n=0;n<len/2;++n){
 				aret+=p[n];
@@ -102,10 +102,10 @@ struct Satoriya_Coder_t{//里々
 		}
 		static string decode(const string& s){
 			const char*	p=s.c_str();
-			int	len=s.size();
+			auto len=s.size();
 			string aret;
-			for(int n=0;n<len;n+=2)aret+=p[n];
-			for(int n=len-((len&1)?2:1);n>=0;n-=2)aret+=p[n];
+			for(auto n=0;n<len;n+=2)aret+=p[n];
+			for(auto n=len-((len&1)?2:1);n>=0;n-=2)aret+=p[n];
 			return	aret;
 		}
 	};
@@ -141,7 +141,7 @@ string fgetstring(FILE*from){
 }
 void fputs(const string& str,FILE*to){
 	string aret;
-	for(str;auto c)
+	for(auto c:str)
 		fputc(c,to);
 	fputc('\n',to);
 }
