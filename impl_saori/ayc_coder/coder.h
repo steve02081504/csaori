@@ -62,22 +62,29 @@ struct Kawari_Coder_t{//華和梨
 		static string docryptLine(string str)
 		{
 			string id=str.substr(0,9);
-			if(id !="!KAWA0000")
+			if(id !="!KAWA0000"&&id !="!KAWA0001")
 				return str;
 			str=DecodeBase64(str.substr(9));
+			unsigned char key=0xcc;
 			string aret;
+			if(id=="!KAWA0001") {
+				key=(unsigned char)str[0];
+				str.erase(str.begin());//第一个字节是算出来的key值，直接跳过
+			}
+			aret.reserve(str.size());
 			for(auto c:str)
-				aret+=c^0xcc;
-			return(aret);
+				aret+=c^key;
+			return aret;
 		}
 	};
 	struct encoder_t{
 		static string docryptLine(const string& str)
 		{
 			string id=str.substr(0,9);
-			if(id =="!KAWA0000")
+			if(id =="!KAWA0000"||id =="!KAWA0001")
 				return str;
 			string aret;
+			aret.reserve(str.size());
 			for(auto c:str)
 				aret+=c^0xcc;
 			return("!KAWA0000"+EncodeBase64(aret));
