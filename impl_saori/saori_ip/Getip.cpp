@@ -50,12 +50,12 @@ int GetInternetIP(std::basic_string<wchar_t>& Inernet_ip) {
 	TCHAR szTempPath[_MAX_PATH] = {0}, szTempFile[MAX_PATH] = {0};
 	std::string buffer;
 	GetTempPath(MAX_PATH, szTempPath);
-	UINT nResult = GetTempFileName(szTempPath, "ip", 0, szTempFile);
-	int aret = URLDownloadToFile(NULL,"http://usada.sakura.vg/ip.php", szTempFile,
+	UINT nResult = GetTempFileName(szTempPath, L"ip", 0, szTempFile);
+	int aret = URLDownloadToFile(NULL,L"http://usada.sakura.vg/ip.php", szTempFile,
 									  BINDF_GETNEWESTVERSION, NULL);
 	if (aret == S_FALSE) return 0;
 	FILE* fp;
-	if (fopen_s(&fp, szTempFile, "rb") != 0) {
+	if (_wfopen_s(&fp, szTempFile, L"rb") != 0) {
 		return 0;
 	}
 	fseek(fp, 0, SEEK_END);	//ìæìûï∂åèëÂè¨
